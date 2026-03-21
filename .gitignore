@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.env
+*.zip
+pending_uploads/
+approved_uploads/
+wood_species_full.zip
+.streamlit/secrets.toml

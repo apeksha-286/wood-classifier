@@ -1,0 +1,345 @@
+import streamlit as st
+import os
+import shutil
+import pandas as pd
+import zipfile
+import tempfile
+
+st.set_page_config(page_title="Admin Panel", layout="centered")
+
+# ================= STYLE =================
+st.markdown("""
+<style>
+
+/* Hide classify page */
+[data-testid="stSidebarNav"] ul li:nth-child(2){
+display:none;
+}
+
+/* Card style */
+.card{
+background:rgba(0,0,0,0.75);
+padding:30px;
+border-radius:15px;
+}
+
+/* Text */
+h1,h2,h3,h4,h5,h6{
+color:white !important;
+}
+
+label,span,p{
+color:white !important;
+}
+
+/* Buttons */
+div.stButton > button{
+background-color:rgba(0,0,0,0.8);
+color:white;
+border-radius:10px;
+height:40px;
+font-weight:bold;
+}
+
+div.stButton > button:hover{
+background-color:#2e7d32;
+}
+
+/* Metrics */
+[data-testid="stMetricValue"]{
+color:white !important;
+font-size:32px;
+font-weight:bold;
+}
+
+[data-testid="stMetricLabel"]{
+color:white !important;
+font-size:18px;
+}
+
+/* FILE UPLOADER FIX */
+
+[data-testid="stFileUploader"]{
+background:rgba(0,0,0,0.55);
+padding:15px;
+border-radius:10px;
+}
+
+[data-testid="stFileUploader"] section{
+background:transparent !important;
+}
+
+[data-testid="stFileUploader"] p{
+color:white !important;
+font-size:16px;
+font-weight:500;
+}
+
+[data-testid="stFileUploader"] small{
+color:#dcdcdc !important;
+font-size:13px;
+}
+
+[data-testid="stFileUploader"] span{
+color:white !important;
+}
+
+/* Browse button */
+[data-testid="stFileUploader"] button{
+background:white !important;
+color:black !important;
+font-weight:bold;
+border-radius:6px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# ================= BACKGROUND =================
+def set_bg():
+
+    image_url = "https://images.unsplash.com/photo-1507041957456-9c397ce39c97?auto=format&fit=crop&w=3000&q=60"
+
+    st.markdown(
+        f"""
+        <style>
+
+        .stApp {{
+        background-image:url("{image_url}");
+        background-size:cover;
+        background-position:center;
+        background-attachment:fixed;
+        }}
+
+        .stApp::before {{
+        content:"";
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.45);
+        z-index:-1;
+        }}
+
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+set_bg()
+
+# ================= PATHS =================
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+PENDING_PATH = os.path.join(BASE_DIR,"pending_uploads")
+DATASET_PATH = os.path.join(BASE_DIR,"dataset","wood_species")
+
+os.makedirs(PENDING_PATH,exist_ok=True)
+
+# ================= ADMIN CREDENTIALS =================
+
+ADMIN_USER = st.secrets["admin"]["username"]
+ADMIN_PASS = st.secrets["admin"]["password"]
+
+# ================= SESSION =================
+
+if "admin_logged" not in st.session_state:
+    st.session_state.admin_logged=False
+
+
+# ==================================================
+# LOGIN
+# ==================================================
+
+if not st.session_state.admin_logged:
+
+    if st.button("⬅ Back to Home"):
+        st.switch_page("app.py")
+
+    col1,col2,col3 = st.columns([1,2,1])
+
+    with col2:
+
+        st.markdown('<div class="card">',unsafe_allow_html=True)
+
+        st.title("🔐 Admin Panel")
+        st.subheader("Admin Login")
+
+        user = st.text_input("Username")
+        pw = st.text_input("Password",type="password")
+
+        if st.button("Login",use_container_width=True):
+
+            if user == ADMIN_USER and pw == ADMIN_PASS:
+
+                st.session_state.admin_logged=True
+                st.success("Login Successful")
+                st.rerun()
+
+            else:
+                st.error("Wrong credentials")
+
+        st.markdown('</div>',unsafe_allow_html=True)
+
+
+# ==================================================
+# DASHBOARD
+# ==================================================
+
+else:
+
+    if st.button("⬅ Back to Home"):
+        st.switch_page("app.py")
+
+    st.title("🛠 Admin Dashboard")
+
+    # ================= DATASET STATS =================
+
+    st.subheader("📊 Dataset Statistics")
+
+    species_counts={}
+    total_images=0
+
+    if os.path.exists(DATASET_PATH):
+
+        for sp in os.listdir(DATASET_PATH):
+
+            sp_path=os.path.join(DATASET_PATH,sp)
+
+            images=[
+                i for i in os.listdir(sp_path)
+                if i.lower().endswith((".jpg",".jpeg",".png"))
+            ]
+
+            species_counts[sp]=len(images)
+            total_images+=len(images)
+
+    pending_count=0
+
+    for sp in os.listdir(PENDING_PATH):
+
+        sp_path=os.path.join(PENDING_PATH,sp)
+
+        pending_count+=len([
+            i for i in os.listdir(sp_path)
+            if i.lower().endswith((".jpg",".jpeg",".png"))
+        ])
+
+    col1,col2,col3=st.columns(3)
+
+    col1.metric("Total Species",len(species_counts))
+    col2.metric("Total Images",total_images)
+    col3.metric("Pending Images",pending_count)
+
+    if species_counts:
+
+        df=pd.DataFrame(
+            list(species_counts.items()),
+            columns=["Species","Images"]
+        )
+
+        st.bar_chart(df.set_index("Species"))
+
+    # ================= IMAGE UPLOAD =================
+
+    st.subheader("➕ Upload Images")
+
+    species_list=os.listdir(DATASET_PATH)
+
+    option=st.radio(
+        "Select Option",
+        ["Existing Species","Create New Species"]
+    )
+
+    if option=="Existing Species":
+
+        species_name=st.selectbox(
+            "Select Species",
+            species_list
+        )
+
+    else:
+
+        species_name=st.text_input("Enter New Species Name")
+
+    uploaded_files=st.file_uploader(
+        "Upload Image(s) or ZIP file",
+        type=["jpg","jpeg","png","zip"],
+        accept_multiple_files=True
+    )
+
+    if st.button("Upload Files"):
+
+        if uploaded_files and species_name:
+
+            species_folder=os.path.join(PENDING_PATH,species_name)
+            os.makedirs(species_folder,exist_ok=True)
+
+            for file in uploaded_files:
+
+                if file.name.endswith(".zip"):
+
+                    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+                        tmp.write(file.read())
+                        tmp_path=tmp.name
+
+                    with zipfile.ZipFile(tmp_path,"r") as zip_ref:
+                        zip_ref.extractall(species_folder)
+
+                else:
+
+                    save_path=os.path.join(species_folder,file.name)
+
+                    with open(save_path,"wb") as f:
+                        f.write(file.getbuffer())
+
+            st.success("Images uploaded for approval")
+            st.rerun()
+
+    # ================= PENDING IMAGES =================
+
+    st.subheader("📥 Recently Uploaded Images")
+
+    for species in os.listdir(PENDING_PATH):
+
+        species_path=os.path.join(PENDING_PATH,species)
+
+        images=[
+            i for i in os.listdir(species_path)
+            if i.lower().endswith((".jpg",".jpeg",".png"))
+        ]
+
+        if not images:
+            continue
+
+        st.markdown(f"### 🌳 {species}")
+
+        for img in images:
+
+            img_path=os.path.join(species_path,img)
+
+            col1,col2,col3=st.columns([4,1,1])
+
+            with col1:
+                st.image(img_path,width=200)
+
+            with col2:
+
+                if st.button("Approve",key=img+"a"):
+
+                    dest=os.path.join(DATASET_PATH,species)
+                    os.makedirs(dest,exist_ok=True)
+
+                    shutil.move(img_path,os.path.join(dest,img))
+
+                    st.success("Image Approved")
+                    st.rerun()
+
+            with col3:
+
+                if st.button("Delete",key=img+"r"):
+
+                    os.remove(img_path)
+
+                    st.warning("Image Deleted")
+                    st.rerun()
+                
