@@ -74,7 +74,7 @@ def set_bg():
             font-weight:500;
         }}
 
-        /* Fix login card buttons to be equal size */
+        /* Fix login card buttons */
         div[data-testid="column"] div.stButton > button {{
             width:100% !important;
             height:45px !important;
@@ -167,7 +167,7 @@ if "mode" not in st.session_state:
     st.session_state.mode="login"
 
 # ---------------- LOGIN CARD ----------------
-left,center,right = st.columns([2,1.3,2])
+left,center,right = st.columns([1.5,2,1.5])
 
 with center:
 
@@ -182,10 +182,10 @@ with center:
 
         st.write("")
 
-        c1,c2,c3 = st.columns([1,1.4,1.4])
+        c1,c2,c3 = st.columns(3)
 
         with c1:
-            if st.button("Sign In"):
+            if st.button("Sign In", use_container_width=True):
                 users = load_users()
                 if username in users and users[username]==password:
                     st.session_state.logged_user=username
@@ -194,11 +194,11 @@ with center:
                     st.error("Invalid credentials")
 
         with c2:
-            if st.button("Forgot Password"):
+            if st.button("Forgot Password", use_container_width=True):
                 st.warning("Reset feature coming soon")
 
         with c3:
-            if st.button("New user? Sign up"):
+            if st.button("New user? Sign up", use_container_width=True):
                 st.session_state.mode="signup"
                 st.rerun()
 
@@ -214,7 +214,7 @@ with center:
         c1,c2 = st.columns(2)
 
         with c1:
-            if st.button("Register"):
+            if st.button("Register", use_container_width=True):
                 users = load_users()
                 if new_user in users:
                     st.error("User already exists")
@@ -226,7 +226,7 @@ with center:
                     st.rerun()
 
         with c2:
-            if st.button("Back"):
+            if st.button("Back", use_container_width=True):
                 st.session_state.mode="login"
                 st.rerun()
 

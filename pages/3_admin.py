@@ -191,8 +191,17 @@ if not st.session_state.admin_logged:
 
 else:
 
-    if st.button("⬅ Back to Home"):
-        st.switch_page("app.py")
+    # ================= TOP BUTTONS =================
+    col_home, col_logout, col_space = st.columns([1,1,4])
+
+    with col_home:
+        if st.button("⬅ Back to Home"):
+            st.switch_page("app.py")
+
+    with col_logout:
+        if st.button("🚪 Logout"):
+            st.session_state.admin_logged = False
+            st.rerun()
 
     st.title("🛠 Admin Dashboard")
 
