@@ -18,12 +18,6 @@ div.stButton > button {
     padding:14px 24px !important;
 }
 
-/* Logout button */
-button[kind="secondary"]{
-    font-size:18px !important;
-    padding:12px 22px !important;
-}
-
 /* White card for species options */
 .species-card {
     background-color: white;
@@ -34,38 +28,12 @@ button[kind="secondary"]{
     margin-bottom: 20px;
 }
 
-/* Horizontal radio buttons */
-.stRadio > div[role="radiogroup"] {
-    display: flex;
-    gap: 20px;
-}
-
-/* Radio button styling */
-.species-card .stRadio label {
-    font-size: 18px !important;
-    font-weight: 600 !important;
-    color: black !important;
-}
-
-/* Selectbox and text input inside card */
-.species-card .stSelectbox > div, .species-card input[type="text"] {
-    font-size: 18px !important;
-    font-weight: 600 !important;
-    color: black !important;
-    background-color: white !important;
-}
-
-/* File uploader inside card */
-.species-card .stFileUploader {
-    font-size: 18px !important;
-    color: black !important;
-}
-
-/* Image captions */
+.stRadio > div[role="radiogroup"] { display: flex; gap: 20px; }
+.species-card .stRadio label { font-size: 18px !important; font-weight: 600 !important; color: black !important; }
+.species-card .stSelectbox > div, .species-card input[type="text"] { font-size: 18px !important; font-weight: 600 !important; color: black !important; background-color: white !important; }
+.species-card .stFileUploader { font-size: 18px !important; color: black !important; }
 .stImage img { border-radius:12px !important; border:3px solid #fff !important; }
 .stImage figcaption { font-size:16px !important; font-weight:600 !important; color:black !important; }
-
-/* Headings */
 h1,h2,h3,h4,h5,h6{ font-weight:700 !important; color:black !important; }
 .welcome-text{ font-size:28px !important; font-weight:700 !important; color:black; }
 </style>
@@ -76,24 +44,9 @@ def set_bg():
     image_url = "https://img.pikbest.com/photo/20251013/misty-forest-with-sunlight-filtering-through-tall-trees-dreamy-cinematic-nature-scene_11940012.jpg%21w700wp"
     st.markdown(f"""
     <style>
-    .stApp {{
-        background-image: url("{image_url}");
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-    }}
-    .stApp::before {{
-        content: "";
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.35);
-        z-index: -1;
-    }}
-    .main .block-container {{
-        background: rgba(255,255,255,0.90);
-        padding: 2rem;
-        border-radius: 15px;
-    }}
+    .stApp {{ background-image: url("{image_url}"); background-size: cover; background-position: center; background-attachment: fixed; }}
+    .stApp::before {{ content: ""; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: -1; }}
+    .main .block-container {{ background: rgba(255,255,255,0.90); padding: 2rem; border-radius: 15px; }}
     h1,h2,h3,p,label,span {{ color:black !important; }}
     </style>
     """, unsafe_allow_html=True)
@@ -126,60 +79,49 @@ if not os.path.exists(DATASET_PATH):
 # ================= DASHBOARD OPTIONS =================
 col1, col2, col3, col4, col5 = st.columns(5)
 if col1.button("1️⃣ Upload Extra Images"): st.session_state.option = "upload"
-if col2.button("2️⃣ Classify Images"): st.switch_page("pages/2_classify.py")
+if col2.button("2️⃣ Classify Images"): st.session_state.option = "classify_info"
 if col3.button("3️⃣ Download Full Dataset"): st.session_state.option = "download_all"
 if col4.button("4️⃣ Download Species Images"): st.session_state.option = "download_one"
 if col5.button("5️⃣ Recent Uploads"): st.session_state.option = "recent_uploads"
 
+# ================= CLASSIFY INFO =================
+if st.session_state.get("option") == "classify_info":
+    st.markdown("""
+    <div style="background:#fff3cd; border-left:6px solid #ffc107; padding:20px; border-radius:10px; margin-bottom:20px;">
+    <h3 style="color:#856404 !important;">⚠️ Before Classifying!</h3>
+    <p style="color:#856404 !important; font-size:18px;">
+        To classify wood species correctly, please make sure you have the dataset images available.
+        You can download the full dataset from the <b>Download Full Dataset</b> option above.
+    </p>
+    </div>
+    """, unsafe_allow_html=True)
+    if st.button("➡ Proceed to Classify", use_container_width=True):
+        st.switch_page("pages/2_classify.py")
+
 # ================= OPTION 1 : UPLOAD =================
 if st.session_state.get("option") == "upload":
-
     st.subheader("📤 Upload Extra Images to Extend Dataset")
-
     classes = [d for d in os.listdir(DATASET_PATH) if os.path.isdir(os.path.join(DATASET_PATH, d))]
-
-    # ===== White Box =====
     st.markdown('<div class="species-card">', unsafe_allow_html=True)
-
     st.markdown("<h3 style='font-size:22px; font-weight:700;'>🌳 Choose Species Option</h3>", unsafe_allow_html=True)
-
     col1, col2 = st.columns(2)
-
     with col1:
-        if st.button("Existing Species"):
-            st.session_state.species_choice = "Existing Species"
-
+        if st.button("Existing Species"): st.session_state.species_choice = "Existing Species"
     with col2:
-        if st.button("Create New Species"):
-            st.session_state.species_choice = "Create New Species"
-
+        if st.button("Create New Species"): st.session_state.species_choice = "Create New Species"
     species_choice = st.session_state.get("species_choice", None)
-
     selected = None
-
     if species_choice == "Existing Species":
         selected = st.selectbox("Select Species", classes)
-
     elif species_choice == "Create New Species":
         new_species = st.text_input("Enter New Species Name")
-        if new_species:
-            selected = new_species.strip()
-
-    files = st.file_uploader(
-        "Upload Images or ZIP File",
-        type=["jpg","jpeg","png","zip"],
-        accept_multiple_files=True
-    )
-
+        if new_species: selected = new_species.strip()
+    files = st.file_uploader("Upload Images or ZIP File", type=["jpg","jpeg","png","zip"], accept_multiple_files=True)
     st.markdown('</div>', unsafe_allow_html=True)
-
-    # ===== Upload Handling =====
     if files and selected:
         pending_path = os.path.join(BASE_DIR, "pending_uploads", selected)
         os.makedirs(pending_path, exist_ok=True)
-
         saved_count = 0
-
         for f in files:
             if f.name.lower().endswith(".zip"):
                 with zipfile.ZipFile(f, "r") as zip_ref:
@@ -190,149 +132,58 @@ if st.session_state.get("option") == "upload":
                 with open(save_path, "wb") as save:
                     save.write(f.getbuffer())
                 saved_count += 1
-
         st.success(f"{saved_count} images uploaded for admin approval ✅")
 
 # ================= OPTION 3 : DOWNLOAD FULL DATASET =================
 if st.session_state.get("option") == "download_all":
-
     st.subheader("📥 Download Complete Dataset")
-
     species_list = [d for d in os.listdir(DATASET_PATH) if os.path.isdir(os.path.join(DATASET_PATH, d))]
     total_species = len(species_list)
-
-    total_images = sum(
-        len([
-            f for f in os.listdir(os.path.join(DATASET_PATH, s))
-            if f.lower().endswith((".jpg",".jpeg",".png"))
-        ])
-        for s in species_list
-    )
-
+    total_images = sum(len([f for f in os.listdir(os.path.join(DATASET_PATH, s)) if f.lower().endswith((".jpg",".jpeg",".png"))]) for s in species_list)
     col1, col2 = st.columns(2)
-
     with col1:
-        st.markdown(f"""
-        <div style="
-            background:#2e7d32;
-            padding:20px;
-            border-radius:12px;
-            text-align:center;
-            color:white;
-            font-size:22px;
-            font-weight:bold;
-        ">
-        🌳 Total Species<br>{total_species}
-        </div>
-        """, unsafe_allow_html=True)
-
+        st.markdown(f"""<div style="background:#2e7d32;padding:20px;border-radius:12px;text-align:center;color:white;font-size:22px;font-weight:bold;">🌳 Total Species<br>{total_species}</div>""", unsafe_allow_html=True)
     with col2:
-        st.markdown(f"""
-        <div style="
-            background:#1565c0;
-            padding:20px;
-            border-radius:12px;
-            text-align:center;
-            color:white;
-            font-size:22px;
-            font-weight:bold;
-        ">
-        🖼 Total Images<br>{total_images}
-        </div>
-        """, unsafe_allow_html=True)
-
+        st.markdown(f"""<div style="background:#1565c0;padding:20px;border-radius:12px;text-align:center;color:white;font-size:22px;font-weight:bold;">🖼 Total Images<br>{total_images}</div>""", unsafe_allow_html=True)
     st.write("")
-
     zip_path = os.path.join(BASE_DIR, "wood_species_full.zip")
-
     with zipfile.ZipFile(zip_path, 'w') as zipf:
         for root, dirs, files in os.walk(DATASET_PATH):
             for file in files:
                 full_path = os.path.join(root, file)
                 zipf.write(full_path, os.path.relpath(full_path, DATASET_PATH))
-
     with open(zip_path, "rb") as f:
         st.download_button("⬇ Download Full Dataset ZIP", f, file_name="wood_species_dataset.zip")
 
 # ================= OPTION 4 : DOWNLOAD SPECIES =================
 if st.session_state.get("option") == "download_one":
-
     st.subheader("📥 Download Images of Selected Species")
-
     classes = [d for d in os.listdir(DATASET_PATH) if os.path.isdir(os.path.join(DATASET_PATH,d))]
     selected = st.selectbox("Select Species to Download", classes)
-
     species_path = os.path.join(DATASET_PATH, selected)
     images = [f for f in os.listdir(species_path) if f.lower().endswith((".jpg",".jpeg",".png"))]
-
-    st.markdown(f"""
-    <div style="
-        background:#1565c0;
-        color:white;
-        padding:15px;
-        border-radius:10px;
-        font-size:20px;
-        font-weight:bold;
-        text-align:center;
-        margin-bottom:15px;
-    ">
-    📷 Total Images in {selected}: {len(images)}
-    </div>
-    """, unsafe_allow_html=True)
-
+    st.markdown(f"""<div style="background:#1565c0;color:white;padding:15px;border-radius:10px;font-size:20px;font-weight:bold;text-align:center;margin-bottom:15px;">📷 Total Images in {selected}: {len(images)}</div>""", unsafe_allow_html=True)
     if images:
-
         st.markdown("### 📄 Image Files")
-
         st.markdown('<div style="max-height:400px; overflow-y:auto;">', unsafe_allow_html=True)
-
         for img in images:
             colA, colB = st.columns([5,1])
-
             with colA:
-                st.markdown(f"""
-             <div style="
-            font-size:20px;
-            font-weight:600;
-            color:#000000;
-            padding:6px 0px;
-            ">
-            📷 {img}
-            </div>
-            """, unsafe_allow_html=True)
-
+                st.markdown(f"""<div style="font-size:20px;font-weight:600;color:#000000;padding:6px 0px;">📷 {img}</div>""", unsafe_allow_html=True)
             with colB:
                 img_path = os.path.join(species_path, img)
                 with open(img_path, "rb") as file:
-                    st.download_button(
-                        "⬇",
-                        file,
-                        file_name=img,
-                        mime="image/jpeg",
-                        key=f"download_{img}"
-                    )
-
+                    st.download_button("⬇", file, file_name=img, mime="image/jpeg", key=f"download_{img}")
         st.markdown('</div>', unsafe_allow_html=True)
-
         st.markdown("---")
-
         st.markdown("### 📦 Download Entire Species as ZIP")
-
         zip_path = os.path.join(BASE_DIR, f"{selected}.zip")
-
         with zipfile.ZipFile(zip_path, 'w') as zipf:
             for img in images:
                 full_path = os.path.join(species_path, img)
                 zipf.write(full_path, img)
-
         with open(zip_path, "rb") as f:
-            st.download_button(
-                f"⬇ Download {selected}.zip",
-                f,
-                file_name=f"{selected}.zip",
-                mime="application/zip"
-            )
-
+            st.download_button(f"⬇ Download {selected}.zip", f, file_name=f"{selected}.zip", mime="application/zip")
     else:
         st.warning("No images found in this species.")
 
@@ -343,8 +194,6 @@ if st.session_state.get("option") == "recent_uploads":
     APPROVED_PATH = os.path.join(BASE_DIR, "approved_uploads")
     os.makedirs(PENDING_PATH, exist_ok=True)
     os.makedirs(APPROVED_PATH, exist_ok=True)
-
-    # -------- PENDING --------
     st.markdown("## ⏳ Pending Uploads")
     pending_species = [d for d in os.listdir(PENDING_PATH) if os.path.isdir(os.path.join(PENDING_PATH, d))]
     if not pending_species: st.info("No pending uploads.")
@@ -369,8 +218,6 @@ if st.session_state.get("option") == "recent_uploads":
                         os.remove(img_path)
                         st.success("Deleted!")
                         st.rerun()
-
-    # -------- APPROVED --------
     st.markdown("---")
     st.markdown("## ✅ Approved Uploads")
     approved_species = [d for d in os.listdir(APPROVED_PATH) if os.path.isdir(os.path.join(APPROVED_PATH, d))]
