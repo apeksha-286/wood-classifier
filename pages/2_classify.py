@@ -30,6 +30,8 @@ def set_bg(image_url):
     st.markdown(
         f"""
         <style>
+        [data-testid="stSidebarNav"] {{display: none !important;}}
+        [data-testid="stSidebar"] {{display: none !important;}}
         .stApp {{
             background-image: url("data:image/jpg;base64,{encoded}");
             background-size: cover;
@@ -129,17 +131,6 @@ models = load_models()
 
 
 # --------------------------------------------------
-# SIDEBAR
-# --------------------------------------------------
-st.sidebar.markdown("""
-### Instructions
-1. Upload a clear wood bark image.
-2. Wait for prediction.
-3. View model comparison & report.
-""")
-
-
-# --------------------------------------------------
 # IMAGE UPLOAD
 # --------------------------------------------------
 uploaded_file = st.file_uploader(
@@ -198,8 +189,7 @@ if uploaded_file is not None:
 
 
     # --------------------------------------------------
-        # --------------------------------------------------
-     # BEST MODEL
+    # BEST MODEL
     # --------------------------------------------------
     best_model = max(confidence_scores, key=confidence_scores.get)
 
@@ -262,7 +252,6 @@ if uploaded_file is not None:
 
 
     # --------------------------------------------------
-        # --------------------------------------------------
     # MODEL-WISE SUMMARY
     # --------------------------------------------------
     st.markdown(
@@ -281,7 +270,7 @@ if uploaded_file is not None:
             predictions["ResNet50"], confidence_scores["ResNet50"],
         ),
         unsafe_allow_html=True
-    ) 
+    )
 
 # --------------------------------------------------
 # EXTRA BUTTONS

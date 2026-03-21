@@ -1,4 +1,3 @@
-
 import streamlit as st
 import json
 import os
@@ -16,6 +15,9 @@ def set_bg():
     st.markdown(
         f"""
         <style>
+
+        [data-testid="stSidebarNav"] {{display: none !important;}}
+        [data-testid="stSidebar"] {{display: none !important;}}
 
         .stApp {{
             background-image: url("{image_url}");
@@ -72,6 +74,17 @@ def set_bg():
             font-weight:500;
         }}
 
+        /* Fix login card buttons to be equal size */
+        div[data-testid="column"] div.stButton > button {{
+            width:100% !important;
+            height:45px !important;
+            font-size:13px !important;
+            padding:4px 6px !important;
+            white-space:normal !important;
+            word-wrap:break-word !important;
+            line-height:1.2 !important;
+        }}
+
         </style>
         """,
         unsafe_allow_html=True
@@ -92,7 +105,7 @@ with col3:
 
 with col4:
     if st.button("Admin"):
-        st.switch_page("pages/admin.py")
+        st.switch_page("pages/3_admin.py")
 
 with col5:
     if st.button("Login"):
@@ -167,12 +180,13 @@ with center:
         username = st.text_input("Enter your name or email")
         password = st.text_input("Password",type="password")
 
-        c1,c2,c3 = st.columns(3)
+        st.write("")
+
+        c1,c2,c3 = st.columns([1,1.4,1.4])
 
         with c1:
             if st.button("Sign In"):
                 users = load_users()
-
                 if username in users and users[username]==password:
                     st.session_state.logged_user=username
                     st.switch_page("pages/dashboard.py")
@@ -195,20 +209,18 @@ with center:
         new_user = st.text_input("Enter your name or email")
         new_pass = st.text_input("Password",type="password")
 
+        st.write("")
+
         c1,c2 = st.columns(2)
 
         with c1:
             if st.button("Register"):
-
                 users = load_users()
-
                 if new_user in users:
                     st.error("User already exists")
-
                 else:
                     users[new_user]=new_pass
                     save_users(users)
-
                     st.success("Account created successfully!")
                     st.session_state.mode="login"
                     st.rerun()

@@ -14,6 +14,9 @@ if "logged_user" not in st.session_state:
 st.markdown("""
 <style>
 
+[data-testid="stSidebarNav"] {display: none !important;}
+[data-testid="stSidebar"] {display: none !important;}
+
 .stApp{ background-color:#f4f6f7; }
 
 /* Buttons */
@@ -383,7 +386,6 @@ if page=="home":
         """,unsafe_allow_html=True)
 
 
-# ---------------- ABOUT ----------------
 # ---------------- ABOUT ----------------
 elif page=="about":
 

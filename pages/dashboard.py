@@ -5,9 +5,9 @@ import zipfile
 # ================= CUSTOM CSS =================
 st.markdown("""
 <style>
-/* Sidebar fix */
-[data-testid="stSidebarNav"] ul li:nth-child(2) { display:none; }
-section[data-testid="stSidebar"] { opacity:1 !important; position:relative; z-index:100; }
+
+[data-testid="stSidebarNav"] {display: none !important;}
+[data-testid="stSidebar"] {display: none !important;}
 
 /* Dashboard buttons */
 div.stButton > button {
@@ -192,13 +192,12 @@ if st.session_state.get("option") == "upload":
                 saved_count += 1
 
         st.success(f"{saved_count} images uploaded for admin approval ✅")
-        # ================= OPTION 3 : DOWNLOAD FULL DATASET =================
+
 # ================= OPTION 3 : DOWNLOAD FULL DATASET =================
 if st.session_state.get("option") == "download_all":
 
     st.subheader("📥 Download Complete Dataset")
 
-    # ✅ Calculate first
     species_list = [d for d in os.listdir(DATASET_PATH) if os.path.isdir(os.path.join(DATASET_PATH, d))]
     total_species = len(species_list)
 
@@ -210,7 +209,6 @@ if st.session_state.get("option") == "download_all":
         for s in species_list
     )
 
-    # ✅ Show stats (NOW it will work)
     col1, col2 = st.columns(2)
 
     with col1:
@@ -245,7 +243,6 @@ if st.session_state.get("option") == "download_all":
 
     st.write("")
 
-    # ✅ Download ZIP
     zip_path = os.path.join(BASE_DIR, "wood_species_full.zip")
 
     with zipfile.ZipFile(zip_path, 'w') as zipf:
@@ -268,7 +265,6 @@ if st.session_state.get("option") == "download_one":
     species_path = os.path.join(DATASET_PATH, selected)
     images = [f for f in os.listdir(species_path) if f.lower().endswith((".jpg",".jpeg",".png"))]
 
-    # ✅ Highlight Total Images
     st.markdown(f"""
     <div style="
         background:#1565c0;
@@ -288,7 +284,6 @@ if st.session_state.get("option") == "download_one":
 
         st.markdown("### 📄 Image Files")
 
-        # ✅ Scrollable container
         st.markdown('<div style="max-height:400px; overflow-y:auto;">', unsafe_allow_html=True)
 
         for img in images:
@@ -321,7 +316,6 @@ if st.session_state.get("option") == "download_one":
 
         st.markdown("---")
 
-        # ✅ ZIP DOWNLOAD (Styled)
         st.markdown("### 📦 Download Entire Species as ZIP")
 
         zip_path = os.path.join(BASE_DIR, f"{selected}.zip")
@@ -341,6 +335,7 @@ if st.session_state.get("option") == "download_one":
 
     else:
         st.warning("No images found in this species.")
+
 # ================= OPTION 5 : RECENT UPLOADS =================
 if st.session_state.get("option") == "recent_uploads":
     st.subheader("🖼 Recent Uploads")

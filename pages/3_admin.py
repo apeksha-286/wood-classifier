@@ -11,10 +11,8 @@ st.set_page_config(page_title="Admin Panel", layout="centered")
 st.markdown("""
 <style>
 
-/* Hide classify page */
-[data-testid="stSidebarNav"] ul li:nth-child(2){
-display:none;
-}
+[data-testid="stSidebarNav"] {display: none !important;}
+[data-testid="stSidebar"] {display: none !important;}
 
 /* Card style */
 .card{
@@ -143,7 +141,13 @@ ADMIN_PASS = st.secrets["admin"]["password"]
 # ================= SESSION =================
 
 if "admin_logged" not in st.session_state:
-    st.session_state.admin_logged=False
+    st.session_state.admin_logged = False
+
+if "current_user" not in st.session_state:
+    st.session_state.current_user = ADMIN_USER
+
+if "current_pass" not in st.session_state:
+    st.session_state.current_pass = ADMIN_PASS
 
 
 # ==================================================
@@ -169,7 +173,7 @@ if not st.session_state.admin_logged:
 
         if st.button("Login",use_container_width=True):
 
-            if user == ADMIN_USER and pw == ADMIN_PASS:
+            if user == st.session_state.current_user and pw == st.session_state.current_pass:
 
                 st.session_state.admin_logged=True
                 st.success("Login Successful")
@@ -342,4 +346,49 @@ else:
 
                     st.warning("Image Deleted")
                     st.rerun()
-                
+
+    # ==================================================
+    # CHANGE USERNAME
+    # ==================================================
+
+    st.markdown("---")
+    st.subheader("👤 Change Username")
+
+    with st.expander("Click to change username"):
+
+        new_username = st.text_input("Enter New Username", key="new_username")
+        confirm_pass = st.text_input("Confirm Current Password", type="password", key="confirm_pass_user")
+
+        if st.button("Update Username"):
+            if confirm_pass == st.session_state.current_pass:
+                if new_username.strip() == "":
+                    st.error("Username cannot be empty!")
+                else:
+                    st.session_state.current_user = new_username.strip()
+                    st.success(f"Username changed to: {new_username.strip()} ✅")
+            else:
+                st.error("Wrong current password!")
+
+    # ==================================================
+    # CHANGE PASSWORD
+    # ==================================================
+
+    st.markdown("---")
+    st.subheader("🔑 Change Password")
+
+    with st.expander("Click to change password"):
+
+        current_pass_input = st.text_input("Enter Current Password", type="password", key="current_pass_input")
+        new_pass = st.text_input("Enter New Password", type="password", key="new_pass")
+        confirm_new_pass = st.text_input("Confirm New Password", type="password", key="confirm_new_pass")
+
+        if st.button("Update Password"):
+            if current_pass_input != st.session_state.current_pass:
+                st.error("Current password is wrong!")
+            elif new_pass.strip() == "":
+                st.error("New password cannot be empty!")
+            elif new_pass != confirm_new_pass:
+                st.error("New passwords do not match!")
+            else:
+                st.session_state.current_pass = new_pass
+                st.success("Password changed successfully ✅")
