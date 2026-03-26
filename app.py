@@ -102,11 +102,9 @@ div.stButton > button:hover{
     box-shadow:0px 6px 20px rgba(0,0,0,0.15);
     transition:0.3s;
     border-left:6px solid #2e7d32;
-
     display:flex;
     flex-direction:column;
     justify-content:flex-start;
-
     height:100%;
     min-height:320px;
 }
@@ -126,6 +124,26 @@ div.stButton > button:hover{
 .about-text{
     font-size:21px;
     line-height:1.9;
+}
+
+/* Dataset stat boxes */
+.stat-box{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0px 4px 15px rgba(0,0,0,0.1);
+    border-top:5px solid #2e7d32;
+}
+.stat-number{
+    font-size:42px;
+    font-weight:bold;
+    color:#1b5e20;
+}
+.stat-label{
+    font-size:18px;
+    color:#555;
+    margin-top:5px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -455,7 +473,6 @@ elif page=="about":
 
     st.markdown("""
     <div class="whitebox">
-
     Tree identification plays a vital role in environmental conservation, forestry management,
     and biodiversity research. Different tree species have unique characteristics such as
     bark texture, leaf structure, and growth patterns.
@@ -466,55 +483,120 @@ elif page=="about":
 
     This project demonstrates how modern computer vision techniques can assist researchers
     and environmental scientists in understanding forest ecosystems and preserving biodiversity.
-
     </div>
     """, unsafe_allow_html=True)
 
     st.write("")
     st.write("")
 
-    # -------- CARDS --------
+    # -------- DATASET STATS --------
+    st.markdown('<div class="center mid">Dataset at a Glance</div>', unsafe_allow_html=True)
+    st.write("")
+
+    c1,c2,c3,c4 = st.columns(4)
+
+    with c1:
+        st.markdown("""
+        <div class="stat-box">
+        <div class="stat-number">558</div>
+        <div class="stat-label">Total Images</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c2:
+        st.markdown("""
+        <div class="stat-box">
+        <div class="stat-number">22</div>
+        <div class="stat-label">Tree Species</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c3:
+        st.markdown("""
+        <div class="stat-box">
+        <div class="stat-number">133 MB</div>
+        <div class="stat-label">Dataset Size</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c4:
+        st.markdown("""
+        <div class="stat-box">
+        <div class="stat-number">224×224</div>
+        <div class="stat-label">Image Size</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.write("")
+    st.write("")
+
+    # -------- DATASET OVERVIEW --------
+    st.markdown('<div class="center mid">Dataset Overview</div>', unsafe_allow_html=True)
+    st.write("")
+
+    st.markdown("""
+    <div class="whitebox">
+    <h3>🌿 Bangalore-Centric Karnataka Dataset</h3>
+    This dataset was specially created to address the lack of region-specific data for Indian tree species.
+    It focuses on the southwestern region of Karnataka, India, with a Bangalore-centric approach.
+    The dataset contains real-world images of 22 distinct tree species, specifically chosen for their
+    relevance in timber and ecological studies. Trees aged above 20 to 25 years form the majority,
+    as they are typically preferred for harvesting due to their timber quality.
+    <br><br>
+    Images were captured using a VIVO 100 Pro ZEISS mobile phone in natural settings, with varying
+    lighting conditions, backgrounds, and tree maturity stages — from young saplings to mature trees.
+    Images were taken from variable distances and multiple angles including close-up and distant views
+    to ensure diversity and robustness in the dataset.
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.write("")
+    st.write("")
+
+    # -------- CARDS ROW 1 --------
     col1,col2 = st.columns(2)
 
     with col1:
-     st.markdown("""
-    <div class="about-card">
-    <div class="about-title">🎯 Project Objective</div>
-    <div class="about-text">
-    The main objective of this project is to design an intelligent system capable of 
-    identifying different wood species by analyzing bark images. 
+        st.markdown("""
+        <div class="about-card">
+        <div class="about-title">🎯 Project Objective</div>
+        <div class="about-text">
+        The main objective of this project is to design an intelligent system capable of 
+        identifying different wood species by analyzing bark images. 
 
-    Using deep learning and computer vision techniques, the system learns unique 
-    patterns and textures found in tree bark. This allows users to quickly identify 
-    tree species without requiring expert knowledge.
+        Using deep learning and computer vision techniques, the system learns unique 
+        patterns and textures found in tree bark. This allows users to quickly identify 
+        tree species without requiring expert knowledge.
 
-    The project demonstrates how Artificial Intelligence can support forestry research,
-    environmental monitoring and biodiversity conservation.
-    </div>
-    </div>
-    """,unsafe_allow_html=True)
+        The project demonstrates how Artificial Intelligence can support forestry research,
+        environmental monitoring and biodiversity conservation.
+        </div>
+        </div>
+        """,unsafe_allow_html=True)
+
     with col2:
-     st.markdown("""
-    <div class="about-card">
-    <div class="about-title">💻 Technologies Used</div>
-    <div class="about-text">
-    This system is developed using modern Artificial Intelligence and 
-    web application technologies.
-    Python is used as the core programming language for building the 
-    machine learning model and data processing pipeline.
+        st.markdown("""
+        <div class="about-card">
+        <div class="about-title">💻 Technologies Used</div>
+        <div class="about-text">
+        This system is developed using modern Artificial Intelligence and 
+        web application technologies.
+        Python is used as the core programming language for building the 
+        machine learning model and data processing pipeline.
 
-    Deep learning frameworks such as TensorFlow and Convolutional 
-    Neural Networks (CNN) are used for image classification.
-    
-    Pre-trained architectures including MobileNetV2, DenseNet121 and 
-    ResNet50 are utilized to improve prediction accuracy.
-    </div>
-    </div>
-    """,unsafe_allow_html=True)
+        Deep learning frameworks such as TensorFlow and Convolutional 
+        Neural Networks (CNN) are used for image classification.
+        
+        Pre-trained architectures including MobileNetV2, DenseNet121 and 
+        ResNet50 are utilized to improve prediction accuracy.
+        </div>
+        </div>
+        """,unsafe_allow_html=True)
 
     st.write("")
     st.write("")
 
+    # -------- CARDS ROW 2 --------
     col3,col4 = st.columns(2)
 
     with col3:
@@ -522,34 +604,84 @@ elif page=="about":
         <div class="about-card">
         <div class="about-title">📂 Dataset</div>
         <div class="about-text">
-        The dataset consists of 558 bark images collected from multiple tree species. 
-    Each image captures unique bark textures, patterns and color variations.
+        The dataset consists of 558 bark images of 22 tree species collected from the
+        southwestern region of Karnataka, India. Images were captured in natural settings
+        using a mobile phone at variable distances and angles.
 
-    These images are used to train deep learning models to recognize and 
-    classify tree species automatically.
+        High-resolution images (1280x720 to 1920x1080 pixels) in JPEG and PNG format
+        are included. Each image is accurately labeled with the corresponding tree species.
 
-    A well-organized dataset plays a critical role in improving the accuracy 
-    and performance of machine learning models.
+        Preprocessing steps applied include resizing to 224x224, normalization,
+        image enhancement and format conversion to RGB JPEG.
         </div>
         </div>
         """,unsafe_allow_html=True)
 
     with col4:
-     st.markdown("""
-    <div class="about-card">
-    <div class="about-title">🚀 Future Improvements</div>
-    <div class="about-text">
-    In the future, the system can be expanded by including a larger 
-    dataset with more tree species to improve the model's learning ability.
+        st.markdown("""
+        <div class="about-card">
+        <div class="about-title">🚀 Future Improvements</div>
+        <div class="about-text">
+        In the future, the system can be expanded by including a larger 
+        dataset with more tree species to improve the model's learning ability.
 
-    Advanced deep learning architectures and optimization techniques 
-    can also be implemented to increase classification accuracy.
-    
-    Additional features such as real-time bark recognition using 
-    mobile cameras and cloud-based deployment can be developed.
-    </div>
-    </div>
-    """,unsafe_allow_html=True)
+        Advanced deep learning architectures and optimization techniques 
+        can also be implemented to increase classification accuracy.
+        
+        Additional features such as real-time bark recognition using 
+        mobile cameras and cloud-based deployment can be developed.
+        </div>
+        </div>
+        """,unsafe_allow_html=True)
+
+    st.write("")
+    st.write("")
+
+    # -------- PURPOSE CARDS --------
+    st.markdown('<div class="center mid">Dataset Applications</div>', unsafe_allow_html=True)
+    st.write("")
+
+    col1,col2,col3,col4 = st.columns(4)
+
+    with col1:
+        st.markdown("""
+        <div class="feature-card">
+        <div class="feature-title">🪵 Timber Classification</div>
+        <div class="feature-text">
+        Identifying trees of suitable age and quality for timber production.
+        </div>
+        </div>
+        """,unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("""
+        <div class="feature-card">
+        <div class="feature-title">🌲 Forest Management</div>
+        <div class="feature-text">
+        Assisting in inventorying and managing tree populations in Karnataka.
+        </div>
+        </div>
+        """,unsafe_allow_html=True)
+
+    with col3:
+        st.markdown("""
+        <div class="feature-card">
+        <div class="feature-title">🔬 Biodiversity Monitoring</div>
+        <div class="feature-text">
+        Tracking the distribution of native species for conservation efforts.
+        </div>
+        </div>
+        """,unsafe_allow_html=True)
+
+    with col4:
+        st.markdown("""
+        <div class="feature-card">
+        <div class="feature-title">🤖 Automation</div>
+        <div class="feature-text">
+        Enabling automated systems using smartphone apps or drones in the field.
+        </div>
+        </div>
+        """,unsafe_allow_html=True)
 
 elif page=="admin":
     st.switch_page("pages/3_admin.py")
