@@ -20,13 +20,8 @@ padding:30px;
 border-radius:15px;
 }
 
-h1,h2,h3,h4,h5,h6{
-color:white !important;
-}
-
-label,span,p{
-color:white !important;
-}
+h1,h2,h3,h4,h5,h6{ color:white !important; }
+label,span,p{ color:white !important; }
 
 div.stButton > button{
 background-color:rgba(0,0,0,0.8);
@@ -36,52 +31,17 @@ height:40px;
 font-weight:bold;
 }
 
-div.stButton > button:hover{
-background-color:#2e7d32;
-}
+div.stButton > button:hover{ background-color:#2e7d32; }
 
-[data-testid="stMetricValue"]{
-color:white !important;
-font-size:32px;
-font-weight:bold;
-}
+[data-testid="stMetricValue"]{ color:white !important; font-size:32px; font-weight:bold; }
+[data-testid="stMetricLabel"]{ color:white !important; font-size:18px; }
 
-[data-testid="stMetricLabel"]{
-color:white !important;
-font-size:18px;
-}
-
-[data-testid="stFileUploader"]{
-background:rgba(0,0,0,0.55);
-padding:15px;
-border-radius:10px;
-}
-
-[data-testid="stFileUploader"] section{
-background:transparent !important;
-}
-
-[data-testid="stFileUploader"] p{
-color:white !important;
-font-size:16px;
-font-weight:500;
-}
-
-[data-testid="stFileUploader"] small{
-color:#dcdcdc !important;
-font-size:13px;
-}
-
-[data-testid="stFileUploader"] span{
-color:white !important;
-}
-
-[data-testid="stFileUploader"] button{
-background:white !important;
-color:black !important;
-font-weight:bold;
-border-radius:6px;
-}
+[data-testid="stFileUploader"]{ background:rgba(0,0,0,0.55); padding:15px; border-radius:10px; }
+[data-testid="stFileUploader"] section{ background:transparent !important; }
+[data-testid="stFileUploader"] p{ color:white !important; font-size:16px; font-weight:500; }
+[data-testid="stFileUploader"] small{ color:#dcdcdc !important; font-size:13px; }
+[data-testid="stFileUploader"] span{ color:white !important; }
+[data-testid="stFileUploader"] button{ background:white !important; color:black !important; font-weight:bold; border-radius:6px; }
 
 </style>
 """, unsafe_allow_html=True)
@@ -91,19 +51,8 @@ def set_bg():
     image_url = "https://images.unsplash.com/photo-1507041957456-9c397ce39c97?auto=format&fit=crop&w=3000&q=60"
     st.markdown(f"""
         <style>
-        .stApp {{
-        background-image:url("{image_url}");
-        background-size:cover;
-        background-position:center;
-        background-attachment:fixed;
-        }}
-        .stApp::before {{
-        content:"";
-        position:fixed;
-        inset:0;
-        background:rgba(0,0,0,0.45);
-        z-index:-1;
-        }}
+        .stApp {{ background-image:url("{image_url}"); background-size:cover; background-position:center; background-attachment:fixed; }}
+        .stApp::before {{ content:""; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:-1; }}
         </style>
         """, unsafe_allow_html=True)
 
@@ -111,11 +60,11 @@ set_bg()
 
 # ================= PATHS =================
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PENDING_PATH = os.path.join(BASE_DIR,"pending_uploads")
-APPROVED_PATH = os.path.join(BASE_DIR,"approved_uploads")
-DATASET_PATH = os.path.join(BASE_DIR,"dataset","wood_species")
+PENDING_PATH  = os.path.join(BASE_DIR, "pending_uploads")
+APPROVED_PATH = os.path.join(BASE_DIR, "approved_uploads")
+DATASET_PATH  = os.path.join(BASE_DIR, "dataset", "wood_species")
 
-os.makedirs(PENDING_PATH, exist_ok=True)
+os.makedirs(PENDING_PATH,  exist_ok=True)
 os.makedirs(APPROVED_PATH, exist_ok=True)
 
 # ================= ADMIN CREDENTIALS =================
@@ -123,15 +72,9 @@ ADMIN_USER = st.secrets["admin"]["username"]
 ADMIN_PASS = st.secrets["admin"]["password"]
 
 # ================= SESSION =================
-if "admin_logged" not in st.session_state:
-    st.session_state.admin_logged = False
-
-if "current_user" not in st.session_state:
-    st.session_state.current_user = ADMIN_USER
-
-if "current_pass" not in st.session_state:
-    st.session_state.current_pass = ADMIN_PASS
-
+if "admin_logged"  not in st.session_state: st.session_state.admin_logged  = False
+if "current_user"  not in st.session_state: st.session_state.current_user  = ADMIN_USER
+if "current_pass"  not in st.session_state: st.session_state.current_pass  = ADMIN_PASS
 
 # ==================================================
 # LOGIN
@@ -141,59 +84,55 @@ if not st.session_state.admin_logged:
     if st.button("⬅ Back to Home"):
         st.switch_page("app.py")
 
-    col1,col2,col3 = st.columns([1,2,1])
-
+    col1, col2, col3 = st.columns([1,2,1])
     with col2:
-        st.markdown('<div class="card">',unsafe_allow_html=True)
+        st.markdown('<div class="card">', unsafe_allow_html=True)
         st.title("🔐 Admin Panel")
         st.subheader("Admin Login")
 
         user = st.text_input("Username")
-        pw = st.text_input("Password",type="password")
+        pw   = st.text_input("Password", type="password")
 
-        if st.button("Login",use_container_width=True):
+        if st.button("Login", use_container_width=True):
             if user == st.session_state.current_user and pw == st.session_state.current_pass:
-                st.session_state.admin_logged=True
+                st.session_state.admin_logged = True
                 st.success("Login Successful")
                 st.rerun()
             else:
                 st.error("Wrong credentials")
 
-        st.markdown('</div>',unsafe_allow_html=True)
-
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # ==================================================
 # DASHBOARD
 # ==================================================
 else:
 
-    # ================= TOP BUTTONS =================
-    col_home, col_logout, col_space = st.columns([1,1,4])
-
-    with col_home:
+    # ===== TOP BUTTONS =====
+    c1, c2, c3 = st.columns([1,1,4])
+    with c1:
         if st.button("⬅ Back to Home"):
             st.switch_page("app.py")
-
-    with col_logout:
+    with c2:
         if st.button("🚪 Logout"):
             st.session_state.admin_logged = False
             st.rerun()
 
     st.title("🛠 Admin Dashboard")
 
-    # ================= DATASET STATS =================
+    # ===== DATASET STATS =====
     st.subheader("📊 Dataset Statistics")
 
     species_counts = {}
-    total_images = 0
+    total_images   = 0
 
     if os.path.exists(DATASET_PATH):
-        for sp in os.listdir(DATASET_PATH):
+        for sp in sorted(os.listdir(DATASET_PATH)):
             sp_path = os.path.join(DATASET_PATH, sp)
             if os.path.isdir(sp_path):
-                images = [i for i in os.listdir(sp_path) if i.lower().endswith((".jpg",".jpeg",".png"))]
-                species_counts[sp] = len(images)
-                total_images += len(images)
+                imgs = [i for i in os.listdir(sp_path) if i.lower().endswith((".jpg",".jpeg",".png"))]
+                species_counts[sp] = len(imgs)
+                total_images += len(imgs)
 
     pending_count = 0
     for sp in os.listdir(PENDING_PATH):
@@ -201,19 +140,36 @@ else:
         if os.path.isdir(sp_path):
             pending_count += len([i for i in os.listdir(sp_path) if i.lower().endswith((".jpg",".jpeg",".png"))])
 
-    col1,col2,col3 = st.columns(3)
-    col1.metric("Total Species", len(species_counts))
-    col2.metric("Total Images", total_images)
-    col3.metric("Pending Images", pending_count)
+    approved_count = 0
+    for sp in os.listdir(APPROVED_PATH):
+        sp_path = os.path.join(APPROVED_PATH, sp)
+        if os.path.isdir(sp_path):
+            approved_count += len([i for i in os.listdir(sp_path) if i.lower().endswith((".jpg",".jpeg",".png"))])
+
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total Species",  len(species_counts))
+    col2.metric("Total Images",   total_images)
+    col3.metric("Pending",        pending_count)
+    col4.metric("Approved",       approved_count)
 
     if species_counts:
         df = pd.DataFrame(list(species_counts.items()), columns=["Species","Images"])
         st.bar_chart(df.set_index("Species"))
 
-    # ================= IMAGE UPLOAD =================
+    # ===== IMPORTANT NOTE =====
+    st.markdown("""
+    <div style="background:#fff3cd;border-left:6px solid #ffc107;padding:15px;border-radius:10px;margin:10px 0;">
+    <b style="color:#856404;">⚠️ Important:</b>
+    <span style="color:#856404;"> Uploaded images are stored temporarily on the server.
+    To permanently add images to the dataset, add them to the
+    <b>dataset/wood_species/SpeciesName/</b> folder in VS Code and push to GitHub.</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ===== IMAGE UPLOAD =====
     st.subheader("➕ Upload Images")
 
-    species_list = os.listdir(DATASET_PATH)
+    species_list = sorted([d for d in os.listdir(DATASET_PATH) if os.path.isdir(os.path.join(DATASET_PATH, d))])
 
     option = st.radio("Select Option", ["Existing Species","Create New Species"])
 
@@ -226,123 +182,101 @@ else:
 
     if st.button("Upload Files"):
         if uploaded_files and species_name:
-            species_folder = os.path.join(PENDING_PATH, species_name)
-            os.makedirs(species_folder, exist_ok=True)
-
+            folder = os.path.join(PENDING_PATH, species_name.strip())
+            os.makedirs(folder, exist_ok=True)
             for file in uploaded_files:
-                if file.name.endswith(".zip"):
+                if file.name.lower().endswith(".zip"):
                     with tempfile.NamedTemporaryFile(delete=False) as tmp:
                         tmp.write(file.read())
                         tmp_path = tmp.name
-                    with zipfile.ZipFile(tmp_path,"r") as zip_ref:
-                        zip_ref.extractall(species_folder)
+                    with zipfile.ZipFile(tmp_path, "r") as zf:
+                        zf.extractall(folder)
                 else:
-                    save_path = os.path.join(species_folder, file.name)
-                    with open(save_path,"wb") as f:
+                    with open(os.path.join(folder, file.name), "wb") as f:
                         f.write(file.getbuffer())
-
             st.success("Images uploaded for approval ✅")
             st.rerun()
 
-    # ================= PENDING IMAGES =================
+    # ===== PENDING IMAGES =====
     st.markdown("---")
     st.subheader("📥 Pending Images — Waiting for Approval")
 
-    pending_species = [d for d in os.listdir(PENDING_PATH) if os.path.isdir(os.path.join(PENDING_PATH, d))]
+    pending_species = sorted([d for d in os.listdir(PENDING_PATH) if os.path.isdir(os.path.join(PENDING_PATH, d))])
 
     if not pending_species:
         st.info("No pending images.")
     else:
         for species in pending_species:
-            species_path = os.path.join(PENDING_PATH, species)
-            images = [i for i in os.listdir(species_path) if i.lower().endswith((".jpg",".jpeg",".png"))]
-
-            if not images:
-                continue
+            sp_path = os.path.join(PENDING_PATH, species)
+            images  = sorted([i for i in os.listdir(sp_path) if i.lower().endswith((".jpg",".jpeg",".png"))])
+            if not images: continue
 
             st.markdown(f"### 🌳 {species}")
 
             for img in images:
-                img_path = os.path.join(species_path, img)
-
+                img_path = os.path.join(sp_path, img)
                 col1, col2, col3, col4 = st.columns([3,1,1,1])
 
                 with col1:
                     st.image(img_path, width=200, caption=img)
 
                 with col2:
-                    if st.button("✅ Approve", key=f"approve_{species}_{img}"):
-                        # Save directly to dataset
+                    if st.button("✅ Approve", key=f"app_{species}_{img}"):
                         dest = os.path.join(DATASET_PATH, species)
                         os.makedirs(dest, exist_ok=True)
                         shutil.move(img_path, os.path.join(dest, img))
-                        st.success(f"{img} approved and saved to dataset! ✅")
+                        st.success(f"✅ {img} approved and saved to dataset!")
                         st.rerun()
 
                 with col3:
-                    if st.button("👁 View", key=f"view_pending_{species}_{img}"):
-                        st.image(img_path, width=400, caption=img)
+                    if st.button("👁 View", key=f"vpend_{species}_{img}"):
+                        st.image(img_path, width=500, caption=img)
 
                 with col4:
-                    if st.button("🗑 Delete", key=f"del_pending_{species}_{img}"):
+                    if st.button("🗑 Delete", key=f"dpend_{species}_{img}"):
                         os.remove(img_path)
-                        st.warning(f"{img} deleted!")
+                        st.warning(f"🗑 {img} deleted!")
                         st.rerun()
 
-    # ================= APPROVED / RECENT UPLOADS =================
+    # ===== APPROVED IMAGES =====
     st.markdown("---")
-    st.subheader("✅ Recently Approved Images")
+    st.subheader("✅ Approved Images")
 
-    approved_species = [d for d in os.listdir(APPROVED_PATH) if os.path.isdir(os.path.join(APPROVED_PATH, d))]
+    approved_species = sorted([d for d in os.listdir(APPROVED_PATH) if os.path.isdir(os.path.join(APPROVED_PATH, d))])
 
     if not approved_species:
-        st.info("No approved uploads yet.")
+        st.info("No approved images yet.")
     else:
         for species in approved_species:
-            species_path = os.path.join(APPROVED_PATH, species)
-            images = [i for i in os.listdir(species_path) if i.lower().endswith((".jpg",".jpeg",".png"))]
-
-            if not images:
-                continue
+            sp_path = os.path.join(APPROVED_PATH, species)
+            images  = sorted([i for i in os.listdir(sp_path) if i.lower().endswith((".jpg",".jpeg",".png"))])
+            if not images: continue
 
             st.markdown(f"### 🌳 {species}")
 
             for img in images:
-                img_path = os.path.join(species_path, img)
-
-                col1, col2, col3, col4 = st.columns([3,1,1,1])
+                img_path = os.path.join(sp_path, img)
+                col1, col2, col3 = st.columns([3,1,1])
 
                 with col1:
                     st.image(img_path, width=200, caption=img)
 
                 with col2:
-                    if st.button("💾 Save to Dataset", key=f"save_{species}_{img}"):
-                        dest = os.path.join(DATASET_PATH, species)
-                        os.makedirs(dest, exist_ok=True)
-                        shutil.move(img_path, os.path.join(dest, img))
-                        st.success(f"{img} saved to dataset! ✅")
-                        st.rerun()
+                    if st.button("👁 View", key=f"vappr_{species}_{img}"):
+                        st.image(img_path, width=500, caption=img)
 
                 with col3:
-                    if st.button("👁 View", key=f"view_approved_{species}_{img}"):
-                        st.image(img_path, width=400, caption=img)
-
-                with col4:
-                    if st.button("🗑 Delete", key=f"del_approved_{species}_{img}"):
+                    if st.button("🗑 Delete", key=f"dappr_{species}_{img}"):
                         os.remove(img_path)
-                        st.warning(f"{img} deleted!")
+                        st.warning(f"🗑 {img} deleted!")
                         st.rerun()
 
-    # ==================================================
-    # CHANGE USERNAME
-    # ==================================================
+    # ===== CHANGE USERNAME =====
     st.markdown("---")
     st.subheader("👤 Change Username")
-
     with st.expander("Click to change username"):
         new_username = st.text_input("Enter New Username", key="new_username")
         confirm_pass = st.text_input("Confirm Current Password", type="password", key="confirm_pass_user")
-
         if st.button("Update Username"):
             if confirm_pass == st.session_state.current_pass:
                 if new_username.strip() == "":
@@ -353,17 +287,13 @@ else:
             else:
                 st.error("Wrong current password!")
 
-    # ==================================================
-    # CHANGE PASSWORD
-    # ==================================================
+    # ===== CHANGE PASSWORD =====
     st.markdown("---")
     st.subheader("🔑 Change Password")
-
     with st.expander("Click to change password"):
         current_pass_input = st.text_input("Enter Current Password", type="password", key="current_pass_input")
-        new_pass = st.text_input("Enter New Password", type="password", key="new_pass")
-        confirm_new_pass = st.text_input("Confirm New Password", type="password", key="confirm_new_pass")
-
+        new_pass           = st.text_input("Enter New Password",      type="password", key="new_pass")
+        confirm_new_pass   = st.text_input("Confirm New Password",    type="password", key="confirm_new_pass")
         if st.button("Update Password"):
             if current_pass_input != st.session_state.current_pass:
                 st.error("Current password is wrong!")
