@@ -59,7 +59,7 @@ def set_bg():
 set_bg()
 
 # ================= PATHS =================
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR      = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PENDING_PATH  = os.path.join(BASE_DIR, "pending_uploads")
 APPROVED_PATH = os.path.join(BASE_DIR, "approved_uploads")
 DATASET_PATH  = os.path.join(BASE_DIR, "dataset", "wood_species")
@@ -72,9 +72,9 @@ ADMIN_USER = st.secrets["admin"]["username"]
 ADMIN_PASS = st.secrets["admin"]["password"]
 
 # ================= SESSION =================
-if "admin_logged"  not in st.session_state: st.session_state.admin_logged  = False
-if "current_user"  not in st.session_state: st.session_state.current_user  = ADMIN_USER
-if "current_pass"  not in st.session_state: st.session_state.current_pass  = ADMIN_PASS
+if "admin_logged" not in st.session_state: st.session_state.admin_logged = False
+if "current_user" not in st.session_state: st.session_state.current_user = ADMIN_USER
+if "current_pass" not in st.session_state: st.session_state.current_pass = ADMIN_PASS
 
 # ==================================================
 # LOGIN
@@ -219,7 +219,6 @@ else:
 
                 with col1:
                     st.image(img_path, width=200, caption=img)
-
                 with col2:
                     if st.button("✅ Approve", key=f"app_{species}_{img}"):
                         dest = os.path.join(DATASET_PATH, species)
@@ -227,11 +226,9 @@ else:
                         shutil.move(img_path, os.path.join(dest, img))
                         st.success(f"✅ {img} approved and saved to dataset!")
                         st.rerun()
-
                 with col3:
                     if st.button("👁 View", key=f"vpend_{species}_{img}"):
                         st.image(img_path, width=500, caption=img)
-
                 with col4:
                     if st.button("🗑 Delete", key=f"dpend_{species}_{img}"):
                         os.remove(img_path)
@@ -260,11 +257,9 @@ else:
 
                 with col1:
                     st.image(img_path, width=200, caption=img)
-
                 with col2:
                     if st.button("👁 View", key=f"vappr_{species}_{img}"):
                         st.image(img_path, width=500, caption=img)
-
                 with col3:
                     if st.button("🗑 Delete", key=f"dappr_{species}_{img}"):
                         os.remove(img_path)
