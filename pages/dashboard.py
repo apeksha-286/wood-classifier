@@ -68,12 +68,12 @@ st.title("📊 Dashboard")
 st.markdown(f"<div class='welcome-text'>Welcome, {st.session_state.logged_user}</div>", unsafe_allow_html=True)
 
 # ================= PATHS =================
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATASET_PATH = os.path.join(BASE_DIR, "dataset", "wood_species")
-PENDING_PATH = os.path.join(BASE_DIR, "pending_uploads")
+BASE_DIR      = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATASET_PATH  = os.path.join(BASE_DIR, "dataset", "wood_species")
+PENDING_PATH  = os.path.join(BASE_DIR, "pending_uploads")
 APPROVED_PATH = os.path.join(BASE_DIR, "approved_uploads")
 
-os.makedirs(PENDING_PATH, exist_ok=True)
+os.makedirs(PENDING_PATH,  exist_ok=True)
 os.makedirs(APPROVED_PATH, exist_ok=True)
 
 if not os.path.exists(DATASET_PATH):
@@ -82,11 +82,11 @@ if not os.path.exists(DATASET_PATH):
 
 # ================= DASHBOARD OPTIONS =================
 col1, col2, col3, col4, col5 = st.columns(5)
-if col1.button("1️⃣ Upload Extra Images"): st.session_state.option = "upload"
-if col2.button("2️⃣ Classify Images"): st.session_state.option = "classify_info"
+if col1.button("1️⃣ Upload Extra Images"):  st.session_state.option = "upload"
+if col2.button("2️⃣ Classify Images"):       st.session_state.option = "classify_info"
 if col3.button("3️⃣ Download Full Dataset"): st.session_state.option = "download_all"
 if col4.button("4️⃣ Download Species Images"): st.session_state.option = "download_one"
-if col5.button("5️⃣ Recent Uploads"): st.session_state.option = "recent_uploads"
+if col5.button("5️⃣ Recent Uploads"):        st.session_state.option = "recent_uploads"
 
 # ================= CLASSIFY INFO =================
 if st.session_state.get("option") == "classify_info":
@@ -105,7 +105,7 @@ if st.session_state.get("option") == "classify_info":
 # ================= OPTION 1 : UPLOAD =================
 if st.session_state.get("option") == "upload":
     st.subheader("📤 Upload Extra Images to Extend Dataset")
-    classes = [d for d in os.listdir(DATASET_PATH) if os.path.isdir(os.path.join(DATASET_PATH, d))]
+    classes = sorted([d for d in os.listdir(DATASET_PATH) if os.path.isdir(os.path.join(DATASET_PATH, d))])
     st.markdown('<div class="species-card">', unsafe_allow_html=True)
     st.markdown("<h3 style='font-size:22px; font-weight:700;'>🌳 Choose Species Option</h3>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
@@ -136,14 +136,14 @@ if st.session_state.get("option") == "upload":
                 with open(save_path, "wb") as save:
                     save.write(f.getbuffer())
                 saved_count += 1
-        st.success(f"{saved_count} images uploaded for admin approval ✅")
+        st.success(f"✅ {saved_count} image(s) uploaded successfully and sent for admin approval!")
 
 # ================= OPTION 3 : DOWNLOAD FULL DATASET =================
 if st.session_state.get("option") == "download_all":
     st.subheader("📥 Download Complete Dataset")
-    species_list = [d for d in os.listdir(DATASET_PATH) if os.path.isdir(os.path.join(DATASET_PATH, d))]
+    species_list  = [d for d in os.listdir(DATASET_PATH) if os.path.isdir(os.path.join(DATASET_PATH, d))]
     total_species = len(species_list)
-    total_images = sum(len([f for f in os.listdir(os.path.join(DATASET_PATH, s)) if f.lower().endswith((".jpg",".jpeg",".png"))]) for s in species_list)
+    total_images  = sum(len([f for f in os.listdir(os.path.join(DATASET_PATH, s)) if f.lower().endswith((".jpg",".jpeg",".png"))]) for s in species_list)
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(f"""<div style="background:#2e7d32;padding:20px;border-radius:12px;text-align:center;color:white;font-size:22px;font-weight:bold;">🌳 Total Species<br>{total_species}</div>""", unsafe_allow_html=True)
@@ -162,10 +162,10 @@ if st.session_state.get("option") == "download_all":
 # ================= OPTION 4 : DOWNLOAD SPECIES =================
 if st.session_state.get("option") == "download_one":
     st.subheader("📥 Download Images of Selected Species")
-    classes = [d for d in os.listdir(DATASET_PATH) if os.path.isdir(os.path.join(DATASET_PATH,d))]
+    classes  = sorted([d for d in os.listdir(DATASET_PATH) if os.path.isdir(os.path.join(DATASET_PATH, d))])
     selected = st.selectbox("Select Species to Download", classes)
     species_path = os.path.join(DATASET_PATH, selected)
-    images = [f for f in os.listdir(species_path) if f.lower().endswith((".jpg",".jpeg",".png"))]
+    images = sorted([f for f in os.listdir(species_path) if f.lower().endswith((".jpg",".jpeg",".png"))])
     st.markdown(f"""<div style="background:#1565c0;color:white;padding:15px;border-radius:10px;font-size:20px;font-weight:bold;text-align:center;margin-bottom:15px;">📷 Total Images in {selected}: {len(images)}</div>""", unsafe_allow_html=True)
     if images:
         st.markdown("### 📄 Image Files")
@@ -197,31 +197,24 @@ if st.session_state.get("option") == "recent_uploads":
 
     # -------- PENDING --------
     st.markdown("## ⏳ Pending Uploads")
-    pending_species = [d for d in os.listdir(PENDING_PATH) if os.path.isdir(os.path.join(PENDING_PATH, d))]
+    pending_species = sorted([d for d in os.listdir(PENDING_PATH) if os.path.isdir(os.path.join(PENDING_PATH, d))])
     if not pending_species:
         st.info("No pending uploads.")
     else:
         for species in pending_species:
             species_path = os.path.join(PENDING_PATH, species)
-            images = [img for img in os.listdir(species_path) if img.lower().endswith((".jpg",".jpeg",".png"))]
+            images = sorted([img for img in os.listdir(species_path) if img.lower().endswith((".jpg",".jpeg",".png"))])
             if not images: continue
             st.markdown(f"### 🌳 {species}")
             for img in images:
                 img_path = os.path.join(species_path, img)
-                col1, col2, col3, col4 = st.columns([3,1,1,1])
+                col1, col2, col3 = st.columns([3,1,1])
                 with col1:
                     st.image(img_path, width=200, caption=img)
                 with col2:
-                    if st.button("✅ Approve", key=f"approve_{species}_{img}"):
-                        approved_species_path = os.path.join(APPROVED_PATH, species)
-                        os.makedirs(approved_species_path, exist_ok=True)
-                        shutil.move(img_path, os.path.join(approved_species_path, img))
-                        st.success(f"{img} approved!")
-                        st.rerun()
-                with col3:
                     if st.button("👁 View", key=f"view_pend_{species}_{img}"):
                         st.image(img_path, width=400, caption=img)
-                with col4:
+                with col3:
                     if st.button("🗑 Delete", key=f"del_pending_{species}_{img}"):
                         os.remove(img_path)
                         st.success("Deleted!")
@@ -230,32 +223,20 @@ if st.session_state.get("option") == "recent_uploads":
     # -------- APPROVED --------
     st.markdown("---")
     st.markdown("## ✅ Approved Uploads")
-    approved_species = [d for d in os.listdir(APPROVED_PATH) if os.path.isdir(os.path.join(APPROVED_PATH, d))]
+    approved_species = sorted([d for d in os.listdir(APPROVED_PATH) if os.path.isdir(os.path.join(APPROVED_PATH, d))])
     if not approved_species:
         st.info("No approved uploads yet.")
     else:
         for species in approved_species:
             species_path = os.path.join(APPROVED_PATH, species)
-            images = [img for img in os.listdir(species_path) if img.lower().endswith((".jpg",".jpeg",".png"))]
+            images = sorted([img for img in os.listdir(species_path) if img.lower().endswith((".jpg",".jpeg",".png"))])
             if not images: continue
             st.markdown(f"### 🌳 {species}")
             for img in images:
                 img_path = os.path.join(species_path, img)
-                col1, col2, col3, col4 = st.columns([3,1,1,1])
+                col1, col2 = st.columns([3,1])
                 with col1:
                     st.image(img_path, width=200, caption=img)
                 with col2:
-                    if st.button("💾 Save", key=f"save_{species}_{img}"):
-                        dataset_species_path = os.path.join(DATASET_PATH, species)
-                        os.makedirs(dataset_species_path, exist_ok=True)
-                        shutil.move(img_path, os.path.join(dataset_species_path, img))
-                        st.success("Saved to dataset! ✅")
-                        st.rerun()
-                with col3:
                     if st.button("👁 View", key=f"view_appr_{species}_{img}"):
                         st.image(img_path, width=400, caption=img)
-                with col4:
-                    if st.button("🗑 Delete", key=f"del_{species}_{img}"):
-                        os.remove(img_path)
-                        st.success("Deleted!")
-                        st.rerun()
