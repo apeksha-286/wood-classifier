@@ -146,25 +146,18 @@ else:
         if os.path.isdir(sp_path):
             approved_count += len([i for i in os.listdir(sp_path) if i.lower().endswith((".jpg",".jpeg",".png"))])
 
+    # also count dataset extra images added this session
+    dataset_total = total_images
+
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Total Species",  len(species_counts))
-    col2.metric("Total Images",   total_images)
+    col2.metric("Total Images",   dataset_total)
     col3.metric("Pending",        pending_count)
     col4.metric("Approved",       approved_count)
 
     if species_counts:
         df = pd.DataFrame(list(species_counts.items()), columns=["Species","Images"])
         st.bar_chart(df.set_index("Species"))
-
-    # ===== IMPORTANT NOTE =====
-    st.markdown("""
-    <div style="background:#fff3cd;border-left:6px solid #ffc107;padding:15px;border-radius:10px;margin:10px 0;">
-    <b style="color:#856404;">⚠️ Important:</b>
-    <span style="color:#856404;"> Uploaded images are stored temporarily on the server.
-    To permanently add images to the dataset, add them to the
-    <b>dataset/wood_species/SpeciesName/</b> folder in VS Code and push to GitHub.</span>
-    </div>
-    """, unsafe_allow_html=True)
 
     # ===== IMAGE UPLOAD =====
     st.subheader("➕ Upload Images")
@@ -194,7 +187,7 @@ else:
                 else:
                     with open(os.path.join(folder, file.name), "wb") as f:
                         f.write(file.getbuffer())
-            st.success("Images uploaded for approval ✅")
+            st.success("Images uploaded successfully ✅")
             st.rerun()
 
     # ===== PENDING IMAGES =====
@@ -219,16 +212,25 @@ else:
 
                 with col1:
                     st.image(img_path, width=200, caption=img)
+
                 with col2:
                     if st.button("✅ Approve", key=f"app_{species}_{img}"):
-                        dest = os.path.join(DATASET_PATH, species)
-                        os.makedirs(dest, exist_ok=True)
-                        shutil.move(img_path, os.path.join(dest, img))
+                        # Move to approved folder AND copy to dataset
+                        approved_sp = os.path.join(APPROVED_PATH, species)
+                        dataset_sp  = os.path.join(DATASET_PATH, species)
+                        os.makedirs(approved_sp, exist_ok=True)
+                        os.makedirs(dataset_sp,  exist_ok=True)
+                        # Copy to dataset
+                        shutil.copy(img_path, os.path.join(dataset_sp, img))
+                        # Move to approved
+                        shutil.move(img_path, os.path.join(approved_sp, img))
                         st.success(f"✅ {img} approved and saved to dataset!")
                         st.rerun()
+
                 with col3:
                     if st.button("👁 View", key=f"vpend_{species}_{img}"):
                         st.image(img_path, width=500, caption=img)
+
                 with col4:
                     if st.button("🗑 Delete", key=f"dpend_{species}_{img}"):
                         os.remove(img_path)
@@ -238,6 +240,7 @@ else:
     # ===== APPROVED IMAGES =====
     st.markdown("---")
     st.subheader("✅ Approved Images")
+    st.caption("These images have been approved and saved to dataset. You can view or delete them here.")
 
     approved_species = sorted([d for d in os.listdir(APPROVED_PATH) if os.path.isdir(os.path.join(APPROVED_PATH, d))])
 
@@ -257,13 +260,19 @@ else:
 
                 with col1:
                     st.image(img_path, width=200, caption=img)
+
                 with col2:
                     if st.button("👁 View", key=f"vappr_{species}_{img}"):
                         st.image(img_path, width=500, caption=img)
+
                 with col3:
                     if st.button("🗑 Delete", key=f"dappr_{species}_{img}"):
+                        # Delete from approved AND from dataset
                         os.remove(img_path)
-                        st.warning(f"🗑 {img} deleted!")
+                        dataset_img = os.path.join(DATASET_PATH, species, img)
+                        if os.path.exists(dataset_img):
+                            os.remove(dataset_img)
+                        st.warning(f"🗑 {img} deleted from approved and dataset!")
                         st.rerun()
 
     # ===== CHANGE USERNAME =====
