@@ -76,12 +76,41 @@ st.markdown("""
     margin-bottom: 15px;
     border-left: 6px solid #2b7cff;
 }
-.dark-box {
-    background: rgba(0,0,0,0.65);
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 15px;
+
+/* ===== MODE SELECTOR FIX ===== */
+div[data-testid="stRadio"] {
+    background: rgba(0,0,0,0.75) !important;
+    padding: 15px 20px !important;
+    border-radius: 12px !important;
 }
+div[data-testid="stRadio"] label {
+    color: white !important;
+    font-size: 20px !important;
+    font-weight: bold !important;
+}
+div[data-testid="stRadio"] p {
+    color: white !important;
+    font-size: 20px !important;
+    font-weight: bold !important;
+}
+div[data-testid="stRadio"] > div {
+    color: white !important;
+}
+/* radio circle color */
+div[data-testid="stRadio"] input[type="radio"] + div {
+    border-color: white !important;
+}
+
+/* ===== UPLOAD LABEL FIX ===== */
+div[data-testid="stFileUploader"] label {
+    color: white !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    background: rgba(0,0,0,0.6) !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+}
+
 img { border-radius: 10px; border: 4px solid white; }
 </style>
 """, unsafe_allow_html=True)
@@ -154,17 +183,44 @@ def predict_image_all(img_array):
     best = max(results, key=lambda m: results[m]["confidence"])
     return results, best
 
-# --------------------------------------------------
-# MODE SELECTOR
-# --------------------------------------------------
-st.markdown('<div class="dark-box"><h3 style="color:white;text-align:center;margin:0;">Select Classification Mode</h3></div>', unsafe_allow_html=True)
 
-mode = st.radio(
-    "Mode",
-    ["🖼 Single Image", "📁 Batch ZIP (All 3 Models - Chunked)"],
-    horizontal=True,
-    label_visibility="collapsed"
-)
+# --------------------------------------------------
+# MODE SELECTOR — using buttons instead of radio
+# --------------------------------------------------
+st.markdown("<h3 style='color:white;text-align:center;'>Select Classification Mode</h3>", unsafe_allow_html=True)
+
+if "mode" not in st.session_state:
+    st.session_state.mode = "single"
+
+col_m1, col_m2 = st.columns(2)
+
+with col_m1:
+    if st.button("🖼 Single Image", use_container_width=True,
+                 type="primary" if st.session_state.mode == "single" else "secondary"):
+        st.session_state.mode = "single"
+        st.rerun()
+
+with col_m2:
+    if st.button("📁 Batch ZIP (All 3 Models)", use_container_width=True,
+                 type="primary" if st.session_state.mode == "batch" else "secondary"):
+        st.session_state.mode = "batch"
+        st.rerun()
+
+mode = st.session_state.mode
+
+# Show selected mode label
+if mode == "single":
+    st.markdown("""
+    <div style="background:rgba(0,50,0,0.8);padding:10px;border-radius:8px;margin:10px 0;">
+    <p style="color:#00ff88;font-size:16px;margin:0;">✅ Selected: <b>Single Image Mode</b> — Upload one bark image, classify with all 3 models</p>
+    </div>
+    """, unsafe_allow_html=True)
+else:
+    st.markdown("""
+    <div style="background:rgba(0,0,80,0.8);padding:10px;border-radius:8px;margin:10px 0;">
+    <p style="color:#88aaff;font-size:16px;margin:0;">✅ Selected: <b>Batch ZIP Mode</b> — Upload ZIP, classify all images in chunks of 50 using all 3 models</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -172,9 +228,13 @@ st.markdown("---")
 # ==================================================
 # MODE 1 — SINGLE IMAGE
 # ==================================================
-if mode == "🖼 Single Image":
+if mode == "single":
 
-    st.markdown('<div class="dark-box"><p style="color:white;font-size:18px;margin:0;">📤 Upload a single bark image to classify using all 3 models.</p></div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div style="background:rgba(0,0,0,0.7);padding:15px;border-radius:10px;margin-bottom:15px;">
+    <p style="color:white;font-size:18px;margin:0;">📤 Upload a single bark image to classify using all 3 models.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     uploaded_file = st.file_uploader("Upload Wood Bark Image", type=["jpg","jpeg","png"])
 
@@ -259,11 +319,12 @@ if mode == "🖼 Single Image":
 else:
 
     st.markdown("""
-    <div class="dark-box">
+    <div style="background:rgba(0,0,0,0.7);padding:20px;border-radius:12px;margin-bottom:15px;">
     <p style="color:white;font-size:18px;margin:0;">
     📦 Upload a ZIP file containing bark images.<br>
-    🔄 All 3 models used — processed in chunks of <b>50 images</b> to avoid memory errors.<br>
-    📊 Final confusion matrix and report shown after all chunks are done.
+    🔄 All 3 models used — processed in <b>chunks of 50 images</b> to avoid memory errors.<br>
+    📊 Final confusion matrix and report shown after all chunks are done.<br>
+    👉 Click the <b>Process Chunk</b> button for each batch.
     </p>
     </div>
     """, unsafe_allow_html=True)
@@ -272,17 +333,14 @@ else:
 
     CHUNK_SIZE = 50
 
-    # Initialize session state for batch
     if "batch_results"   not in st.session_state: st.session_state.batch_results   = []
     if "chunk_index"     not in st.session_state: st.session_state.chunk_index     = 0
     if "all_image_paths" not in st.session_state: st.session_state.all_image_paths = []
-    if "tmpdir_path"     not in st.session_state: st.session_state.tmpdir_path     = None
     if "batch_done"      not in st.session_state: st.session_state.batch_done      = False
     if "zip_name"        not in st.session_state: st.session_state.zip_name        = None
 
     if zip_file is not None:
 
-        # Reset if new ZIP uploaded
         if zip_file.name != st.session_state.zip_name:
             st.session_state.batch_results   = []
             st.session_state.chunk_index     = 0
@@ -290,9 +348,7 @@ else:
             st.session_state.batch_done      = False
             st.session_state.zip_name        = zip_file.name
 
-            # Extract to temp folder
             tmpdir = tempfile.mkdtemp()
-            st.session_state.tmpdir_path = tmpdir
             with zipfile.ZipFile(zip_file, "r") as zf:
                 zf.extractall(tmpdir)
 
@@ -311,25 +367,31 @@ else:
         start       = chunk_index * CHUNK_SIZE
         end         = min(start + CHUNK_SIZE, total)
         done        = st.session_state.batch_done
+        processed   = len(st.session_state.batch_results)
+        total_chunks = -(-total // CHUNK_SIZE)
 
         if total == 0:
             st.error("No images found in ZIP!")
             st.stop()
 
-        # Show progress
-        processed = len(st.session_state.batch_results)
+        # Progress display
         st.markdown(f"""
         <div style="background:#e8f5e9;padding:15px;border-radius:10px;margin-bottom:15px;">
-        <b style="color:#1b5e20;">Progress: {processed}/{total} images processed
-        (Chunk {chunk_index}/{-(-total//CHUNK_SIZE)})</b>
+        <b style="color:#1b5e20;font-size:18px;">
+        Progress: {processed}/{total} images processed
+        | Chunk {chunk_index}/{total_chunks}
+        </b>
         </div>
         """, unsafe_allow_html=True)
         st.progress(processed / total if total > 0 else 0)
 
         if not done and start < total:
-            if st.button(f"▶ Process Chunk {chunk_index+1} (images {start+1}–{end})", use_container_width=True):
-
-                chunk_paths = all_paths[start:end]
+            if st.button(
+                f"▶ Process Chunk {chunk_index+1} — Images {start+1} to {end}",
+                use_container_width=True,
+                type="primary"
+            ):
+                chunk_paths  = all_paths[start:end]
                 progress_bar = st.progress(0)
                 status       = st.empty()
 
@@ -337,7 +399,6 @@ else:
                     try:
                         image   = Image.open(img_path).convert("RGB")
                         img_arr = np.array(image.resize((224, 224)))
-
                         results, best_model = predict_image_all(img_arr)
 
                         st.session_state.batch_results.append({
@@ -352,10 +413,8 @@ else:
                             "resnet":      results["ResNet50"]["species"],
                             "resnet_c":    results["ResNet50"]["confidence"],
                         })
-
                         del img_arr, image, results
                         gc.collect()
-
                     except Exception as e:
                         st.warning(f"Skipped {os.path.basename(img_path)}: {e}")
 
@@ -364,7 +423,6 @@ else:
 
                 progress_bar.empty()
                 status.empty()
-
                 st.session_state.chunk_index += 1
 
                 if end >= total:
@@ -373,35 +431,13 @@ else:
                 st.success(f"✅ Chunk {chunk_index+1} done! {len(st.session_state.batch_results)}/{total} images processed.")
                 st.rerun()
 
-        # Show results after each chunk
+        # Show results
         if st.session_state.batch_results:
-
             results_so_far = st.session_state.batch_results
-
-            # Per image grid
-            st.markdown('<div class="white-box">', unsafe_allow_html=True)
-            st.markdown(f'<div class="section-title">🖼 Individual Predictions ({len(results_so_far)} images)</div>', unsafe_allow_html=True)
-
-            cols_per_row = 3
-            for i in range(0, len(results_so_far), cols_per_row):
-                row_items = results_so_far[i:i+cols_per_row]
-                cols = st.columns(cols_per_row)
-                for col, item in zip(cols, row_items):
-                    with col:
-                        st.markdown(f"""
-                        <div style="background:#e8f5e9;padding:10px;border-radius:8px;
-                                    font-size:14px;color:black;margin-bottom:10px;">
-                        📄 <b>{item["filename"]}</b><br>
-                        🌲 <b>{item["prediction"]}</b><br>
-                        🏆 {item["best_model"]}<br>
-                        📈 {item["confidence"]:.1f}%
-                        </div>
-                        """, unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
 
             # Summary Table
             st.markdown('<div class="white-box">', unsafe_allow_html=True)
-            st.markdown('<div class="section-title">📋 Prediction Summary Table</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="section-title">📋 Prediction Summary ({len(results_so_far)} images so far)</div>', unsafe_allow_html=True)
             summary_df = pd.DataFrame([{
                 "Image":       r["filename"],
                 "Predicted":   r["prediction"],
@@ -419,7 +455,7 @@ else:
 
                 st.markdown("""
                 <div style="background:#1b5e20;padding:20px;border-radius:12px;text-align:center;margin-bottom:20px;">
-                <h2 style="color:white;margin:0;">🎉 All Images Processed! Final Results Below</h2>
+                <h2 style="color:white;margin:0;">🎉 All Images Processed! Final Results</h2>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -429,7 +465,7 @@ else:
                 # Confusion Matrix
                 cm_batch = confusion_matrix(y_true_all, y_pred_all, labels=CLASS_NAMES)
                 st.markdown('<div class="white-box">', unsafe_allow_html=True)
-                st.markdown('<div class="section-title">🧩 Final Confusion Matrix (All Images)</div>', unsafe_allow_html=True)
+                st.markdown('<div class="section-title">🧩 Final Confusion Matrix</div>', unsafe_allow_html=True)
                 fig3, ax3 = plt.subplots(figsize=(14, 10))
                 sns.heatmap(cm_batch, annot=True, fmt="d", cmap="Greens",
                             xticklabels=CLASS_NAMES, yticklabels=CLASS_NAMES)
@@ -441,9 +477,7 @@ else:
                 st.markdown('</div>', unsafe_allow_html=True)
 
                 # Classification Report
-                report_b    = classification_report(y_true_all, y_pred_all,
-                                                    labels=CLASS_NAMES,
-                                                    output_dict=True, zero_division=0)
+                report_b    = classification_report(y_true_all, y_pred_all, labels=CLASS_NAMES, output_dict=True, zero_division=0)
                 report_df_b = pd.DataFrame(report_b).transpose()
                 st.markdown('<div class="white-box">', unsafe_allow_html=True)
                 st.markdown('<div class="section-title">📄 Final Classification Report</div>', unsafe_allow_html=True)
@@ -463,24 +497,18 @@ else:
                 st.markdown('<div class="section-title">📊 Model-wise Prediction Distribution</div>', unsafe_allow_html=True)
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    st.markdown("**MobileNetV2**")
-                    st.dataframe(pd.DataFrame(list(mob_counts.items()),
-                        columns=["Species","Count"]).sort_values("Count",ascending=False),
-                        use_container_width=True)
+                    st.markdown("**🟢 MobileNetV2**")
+                    st.dataframe(pd.DataFrame(list(mob_counts.items()), columns=["Species","Count"]).sort_values("Count", ascending=False), use_container_width=True)
                 with col2:
-                    st.markdown("**DenseNet121**")
-                    st.dataframe(pd.DataFrame(list(den_counts.items()),
-                        columns=["Species","Count"]).sort_values("Count",ascending=False),
-                        use_container_width=True)
+                    st.markdown("**🔵 DenseNet121**")
+                    st.dataframe(pd.DataFrame(list(den_counts.items()), columns=["Species","Count"]).sort_values("Count", ascending=False), use_container_width=True)
                 with col3:
-                    st.markdown("**ResNet50**")
-                    st.dataframe(pd.DataFrame(list(res_counts.items()),
-                        columns=["Species","Count"]).sort_values("Count",ascending=False),
-                        use_container_width=True)
+                    st.markdown("**🔴 ResNet50**")
+                    st.dataframe(pd.DataFrame(list(res_counts.items()), columns=["Species","Count"]).sort_values("Count", ascending=False), use_container_width=True)
                 st.markdown('</div>', unsafe_allow_html=True)
 
                 # Reset button
-                if st.button("🔄 Start New Batch", use_container_width=True):
+                if st.button("🔄 Start New Batch", use_container_width=True, type="primary"):
                     st.session_state.batch_results   = []
                     st.session_state.chunk_index     = 0
                     st.session_state.all_image_paths = []
